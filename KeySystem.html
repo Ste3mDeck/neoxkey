@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Key Generator</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> 
+    <style>
+        body {
+            background-color: #050d2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Fredoka One', cursive;
+            color: white;
+        }
+
+        .container {
+            background-color: #0d1e64;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #copyButton {
+            background-color: #050d2a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-family: 'Fredoka One', cursive;
+        }
+
+        #discordContainer {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            background-color: #0d1e64;
+            border-radius: 10px;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+        }
+
+        #discordIcon {
+            margin-right: 10px;
+        }
+
+        #keyTime {
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        function generateRandomKey() {
+            const prefix = "neoxkey";
+            const randomPart = Math.random().toString(36).substr(2, 8);
+            const key = prefix + randomPart;
+
+       
+            localStorage.setItem('neoxKey', key);
+            localStorage.setItem('neoxKeyTime', Date.now());
+
+            document.getElementById('keyText').innerText = key;
+
+
+            countdown = 24 * 60 * 60;
+            updateCountdown();
+        }
+
+        function copyToClipboard() {
+            const keyTextElement = document.getElementById('keyText');
+            const keyText = keyTextElement.innerText;
+
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = keyText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            document.getElementById('copyButton').innerText = 'Copied!';
+            setTimeout(() => {
+                document.getElementById('copyButton').innerText = 'Copy';
+            }, 2000); 
+        }
+
+        let countdown = 24 * 60 * 60;
+
+        function updateCountdown() {
+            const hours = Math.floor(countdown / 3600);
+            const minutes = Math.floor((countdown % 3600) / 60);
+            const seconds = countdown % 60;
+            document.getElementById('keyTime').innerText = `Key Time: ${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        function startCountdown() {
+            setInterval(() => {
+                countdown -= 1;
+                updateCountdown();
+            }, 1000); 
+        }
+
+        window.onload = function() {
+            const storedKey = localStorage.getItem('neoxKey');
+            const storedKeyTime = localStorage.getItem('neoxKeyTime');
+
+            if (storedKey && storedKeyTime) {
+                const currentTime = Date.now();
+                const elapsedTime = (currentTime - parseInt(storedKeyTime, 10)) / 1000;
+
+              
+                if (elapsedTime < 24 * 60 * 60) {
+                    countdown = Math.floor(24 * 60 * 60 - elapsedTime);
+                    document.getElementById('keyText').innerText = storedKey;
+                }
+            } else {
+                generateRandomKey();
+            }
+
+            setInterval(generateRandomKey, 20000);
+
+            document.getElementById('copyButton').addEventListener('click', copyToClipboard);
+
+            startCountdown();
+            updateCountdown();
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div id="keyText"></div>
+        <div>Copy to Clipboard</div>
+        <button id="copyButton">Copy</button>
+        <div id="keyTime"></div>
+    </div>
+
+
+    <a href="https://discord.gg/neox" id="discordContainer" target="_blank">
+        <i id="discordIcon" class="fab fa-discord"></i>
+        Join Discord!
+    </a>
+</body>
+</html>
